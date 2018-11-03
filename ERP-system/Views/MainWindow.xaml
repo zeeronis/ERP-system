@@ -1,0 +1,142 @@
+﻿<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:viewModels="clr-namespace:ERP_system.ViewModels"
+    xmlns:convertors="clr-namespace:ERP_system.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+    mc:Ignorable="d" 
+    x:Class="ERP_system.Views.MainWindow"
+    Title="ERP - system" MinHeight="580" Height="580" MinWidth="1000" Width="1000">
+    <Window.DataContext>
+        <viewModels:MainViewModel/>
+    </Window.DataContext>
+    
+    <Window.Resources>
+        <convertors:FirstUpperConvertor x:Key="FirstCharUpper"/>
+        <convertors:EmployeePropertiesConverter x:Key="EmployeeProperty"/>
+        <DataTemplate x:Key="employeeListItem">
+            <Grid Margin="1,4">
+                <Border HorizontalAlignment="Left" BorderBrush="#FF007ACC" BorderThickness="2"
+                        MaxHeight="65" Height="65" MaxWidth="65" Width="65">
+                    <Image Source="{Binding Image}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                </Border>
+                <Border VerticalAlignment="Center" BorderBrush="#FF007ACC" BorderThickness="1" Margin="68,0,5,0">
+                    <StackPanel>
+                        <Label Content="{Binding FirstName, Converter={StaticResource FirstCharUpper}}" Padding="5,2"/>
+                        <Label Content="{Binding PositionHeld}" Padding="5,2"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <TabControl HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" SelectedIndex="{Binding SelectedTabIndex}">
+            <TabItem>
+                <Grid Background="White">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="333*"/>
+                        <RowDefinition Height="121*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="217"/>
+                        <ColumnDefinition Width="238"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="1,5,1,0" Height="54"/>
+
+                    <Button  HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="0" Grid.RowSpan="2" Margin="5,2"
+                            Content="New" Command="{Binding Command}" CommandParameter="new"/>
+
+                    <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="0,5,0,32" Grid.RowSpan="2"
+                            HorizontalContentAlignment="Stretch" 
+                            ItemTemplate="{StaticResource employeeListItem}"
+                            ItemsSource="{Binding Path=EmployeesList}" SelectedIndex="{Binding EmployeeSelectedIndex}"/>
+
+                    <StackPanel Grid.Column="1" Grid.RowSpan="2">
+                        <Image Source="{Binding SelectedEmployee.Image}" MaxHeight="150" Margin="5"/>
+                        <Label Content="{Binding SelectedEmployee.FirstName, Converter={StaticResource FirstCharUpper}}" HorizontalAlignment="Center"/>
+                        <Label Content="{Binding SelectedEmployee.Rating}" ContentStringFormat="Rating: {0}" HorizontalAlignment="Center"/>
+                        <Expander Margin="5" Header="Show addtional info" Background="#CC119EDA">
+                            <StackPanel>
+                                <Label Content="{Binding SelectedEmployee.Id}" ContentStringFormat="Id: {0}"/>
+                                <Label Content="{Binding SelectedEmployee.LastName}" ContentStringFormat="Last name: {0}"/>
+                                <Label Content="{Binding SelectedEmployee.Dob}" ContentStringFormat="Birthday: {0}"/>
+                                <Label Content="{Binding SelectedEmployee.Location, Converter={StaticResource FirstCharUpper}}" ContentStringFormat="City: {0}"/>
+                                <Label Content="{Binding SelectedEmployee.Salary}" ContentStringFormat="Salary: {0}$"/>
+                            </StackPanel>
+                        </Expander>
+                        <Button Content="Edit" Command="{Binding Command}" CommandParameter="edit" Margin="5,0"/>
+                    </StackPanel>
+
+                    <DataGrid ItemsSource="{Binding ProjectsList}" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" AutoGenerateColumns="True" />
+
+                    <Border Background="White" Grid.RowSpan="1" Grid.Column="2" Margin="10" BorderThickness="2" BorderBrush="#FF979797">
+                        <Grid>
+                            <lvc:CartesianChart>
+
+                                <lvc:CartesianChart.Series>
+                                    <lvc:RowSeries Values="{Binding Path=ChartValues}" Panel.ZIndex="1"/>
+                                </lvc:CartesianChart.Series>
+
+                                <lvc:CartesianChart.AxisY>
+                                    <lvc:Axis Labels="{Binding Path=ChartLabels}">
+                                        <lvc:Axis.Separator>
+                                            <lvc:Separator Step="1"/>
+                                        </lvc:Axis.Separator>
+                                    </lvc:Axis>
+                                </lvc:CartesianChart.AxisY>
+
+                                <lvc:CartesianChart.AxisX>
+                                    <lvc:Axis MinValue="0" MaxValue="100"/>
+                                </lvc:CartesianChart.AxisX>
+
+                                <lvc:CartesianChart.DataTooltip>
+                                    <lvc:DefaultTooltip SelectionMode="SharedYValues"/>
+                                </lvc:CartesianChart.DataTooltip>
+
+                            </lvc:CartesianChart>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="0" Grid.RowSpan="2" BorderBrush="#FF7EC6E4" BorderThickness="1.5"  Grid.ColumnSpan="1" 
+                            HorizontalAlignment="Right" Width="3"/>
+
+                    <GridSplitter BorderThickness="2" Grid.Column="1" HorizontalAlignment="Stretch" BorderBrush="#FF7EC6E4" Height="4"
+                      VerticalAlignment="Bottom" Grid.ColumnSpan="2" Background="Black" />
+                </Grid>
+            </TabItem>
+            <TabItem>
+                <Grid>
+                    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5" Orientation="Horizontal">
+                        <Button Content="Save" Command="{Binding Command}" CommandParameter="save" Margin="2,0"/>
+                        <Button Content="Cancel" Command="{Binding Command}" CommandParameter="cancel"/>
+                    </StackPanel>
+
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBox Text="{Binding NewOrEditedEmployee.Id, Converter={StaticResource EmployeeProperty}, ConverterParameter='id'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.FirstName, Converter={StaticResource EmployeeProperty}, ConverterParameter='First name'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.LastName, Converter={StaticResource EmployeeProperty}, ConverterParameter='Last name'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.Location, Converter={StaticResource EmployeeProperty}, ConverterParameter='Location'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.PositionHeld, Converter={StaticResource EmployeeProperty}, ConverterParameter='Position held'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.Salary, Converter={StaticResource EmployeeProperty}, ConverterParameter='Salary'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.PicturePath, Converter={StaticResource EmployeeProperty}, ConverterParameter='Picture path'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.Dob, Converter={StaticResource EmployeeProperty}, ConverterParameter='Dob'}"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="40,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBox Text="{Binding NewOrEditedEmployee.Indicators.EfficiencyTeamwork, Converter={StaticResource EmployeeProperty}, ConverterParameter='Efficiency teamwork'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.Indicators.LeadershipSkills, Converter={StaticResource EmployeeProperty}, ConverterParameter='Leadership skills'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.Indicators.CodeEfficiency, Converter={StaticResource EmployeeProperty}, ConverterParameter='Code efficiency'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.Indicators.DrawingGraphics, Converter={StaticResource EmployeeProperty}, ConverterParameter='Drawing graphics'}"/>
+                        <TextBox Text="{Binding NewOrEditedEmployee.Indicators.PercentSuccessfullyCompletedProjects, Converter={StaticResource EmployeeProperty}, ConverterParameter='Percent successfully completed projects'}"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
